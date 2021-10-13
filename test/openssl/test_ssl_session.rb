@@ -379,7 +379,12 @@ __EOS__
   def server_connect_with_session(port, ctx = nil, sess = nil)
     sock = TCPSocket.new("127.0.0.1", port)
     ctx ||= OpenSSL::SSL::SSLContext.new
-    ssl = OpenSSL::SSL::SSLSocket.new(sock, ctx)
+    @ssl = OpenSSL::SSL::SSLSocket.new(sock, ctx)
+    itself
+    if GC.respond_to?(:verify_compaction_references)
+      GC.verify_compaction_references(double_heap: true, toward: :empty)
+    end
+    ssl = @ssl
     ssl.session = sess if sess
     ssl.sync_close = true
     ssl.connect
